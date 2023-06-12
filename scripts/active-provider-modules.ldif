@@ -1,3 +1,6 @@
+#
+# Use: ldapmodify -H ldapi:// -Y EXTERNAL -f active-provider-modules.ldif
+#
 dn: cn=module,cn=config
 objectClass: olcModuleList
 cn: module

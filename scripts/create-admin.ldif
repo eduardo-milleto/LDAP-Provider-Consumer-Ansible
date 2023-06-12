@@ -1,0 +1,8 @@
+#
+# Use: ldapmodify -H ldapi:// -Y EXTERNAL -f create-admin.ldif
+# Generate Hash: slappasswd -h {SSHA}
+#
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: {SSHA}hash

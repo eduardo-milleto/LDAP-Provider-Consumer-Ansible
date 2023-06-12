@@ -1,3 +1,6 @@
+#
+# Use: ldapmodify -H ldapi:// -Y EXTERNAL -f create-provider-accesslog.ldif
+#
 dn: olcDatabase=mdb,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcMdbConfig

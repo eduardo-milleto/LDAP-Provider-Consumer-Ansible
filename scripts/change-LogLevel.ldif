@@ -1,3 +1,6 @@
+#
+# Use: ldapmodify -H ldapi:// -Y EXTERNAL -f change-LogLevel.ldif
+#
 dn: cn=config
 changetype: modify
 replace: olcLogLevel

@@ -1,0 +1,241 @@
+- hosts: LDAP
+  vars:
+   slapd_root_password: "123"
+  tasks:
+   - name: Configurar senha do admin
+     debconf:
+       name: slapd/root_password
+       question: slapd/root_password
+       value: "{{ slapd_root_password | quote }}"
+       vtype: password
+     become: true
+     become_user: root
+
+
+   - name: Criar arquivos vazios
+     file:
+       path: "{{ item }}"
+       state: touch
+     loop:
+       - /home/ubuntu/admin.ldif
+       - /home/ubuntu/module.ldif
+       - /home/ubuntu/replicator.ldif
+       - /home/ubuntu/new_database.ldif
+       - /home/ubuntu/index_sync.ldif
+       - /home/ubuntu/overlay_sync.ldif
+       - /home/ubuntu/overlay_accesslog.ldif
+       - /home/ubuntu/overlay_sync_accesslog.ldif
+       - /home/ubuntu/replicator_config.ldif
+       - /home/ubuntu/replicator_config2.ldif
+
+
+   - name: Crie o diretório accesslog
+     file:
+       path: /var/lib/ldap/accesslog
+       state: directory
+       owner: openldap
+       group: openldap
+     become: true
+
+
+   - name: Escrever conteúdo LDIF em admin.ldif
+     blockinfile:
+       dest: /home/ubuntu/admin.ldif
+       block: |
+         dn: olcDatabase={0}config,cn=config
+         changetype: modify
+         replace: olcRootPW
+         olcRootPW: {SSHA}72DBbsejSDQg2GPWzDMf48Pbn+KINQac
+     become: true
+     become_user: root
+
+
+   - name: Adicionar admin.ldif
+     command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/admin.ldif
+     become: true
+     become_user: root
+
+
+   - name: Escrevendo no replicator.ldif
+     blockinfile:
+       dest: /home/ubuntu/replicator.ldif
+       block: |
+         dn: cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com
+         objectClass: simpleSecurityObject
+         objectClass: organizationalRole
+         cn: replicator
+         description: Replication user
+         userPassword: {SSHA}y+9NPwwhxgI5I7tcF4OmAfPTnIao6xik
+     become: true
+     become_user: root
+  
+   - name: Adicionar replicator.ldif
+     command: ldapadd -x -D 'cn=admin,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com' -w '123' -H ldapi:/// -f /home/ubuntu/replicator.ldif
+     become: true
+     become_user: root
+
+
+   - name: Escrever conteúdo LDIF em module.ldif
+     blockinfile:
+       dest: /home/ubuntu/module.ldif
+       block: |
+         dn: cn=module,cn=config
+         changetype: add
+         objectClass: olcModuleList
+         cn: module
+         olcModulePath: /usr/lib/ldap/
+         olcModuleLoad: accesslog.la
+         olcModuleLoad: syncprov.la
+     become: true
+     become_user: root
+
+
+   - name: Adicionar module.ldif
+     command: ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/module.ldif
+     become: true
+     become_user: root
+
+
+   - name: Escrevendo no arquivo new_database.ldif
+     blockinfile:
+       dest: /home/ubuntu/new_database.ldif
+       block: |
+         dn: olcDatabase={2}mdb,cn=config
+         objectClass: olcDatabaseConfig
+         objectClass: olcMdbConfig
+         olcDatabase: {2}mdb
+         olcDbDirectory: /var/lib/ldap/accesslog
+         olcSuffix: cn=accesslog
+         olcRootDN: cn=admin,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com
+         olcDbIndex: default eq
+         olcDbIndex: entryCSN,objectClass,reqEnd,reqResult,reqStart
+         olcAccess: {0}to * by dn.exact="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" read by * break
+         olcLimits: dn.exact="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com"
+           time.soft=unlimited time.hard=unlimited
+           size.soft=unlimited size.hard=unlimited
+
+
+   - name: Adicionando o new_database.ldif
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/new_database.ldif"
+     become: true
+     become_user: root
+
+   - name: Escrevendo no arquivo index_sync.ldif
+     blockinfile:
+       dest: /home/ubuntu/index_sync.ldif
+       block: |
+         dn: olcDatabase={1}mdb,cn=config
+         changetype: modify
+         add: olcDbIndex
+         olcDbIndex: entryCSN eq
+         -
+         add: olcDbIndex
+         olcDbIndex: entryUUID eq
+
+   - name: Adicionando o arquivo index_sync.ldif
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/index_sync.ldif"
+     become: true
+     become_user: root
+    
+   - name: Escrevendo no arquivo overlay_sync.ldif
+     blockinfile:
+       dest: /home/ubuntu/overlay_sync.ldif
+       block: |
+         dn: olcOverlay={1}syncprov,olcDatabase={1}mdb,cn=config
+         objectClass: olcConfig
+         objectClass: olcOverlayConfig
+         objectClass: olcSyncProvConfig
+         objectClass: top
+         olcOverlay: {1}syncprov
+         olcSpCheckpoint: 20 5
+
+   - name: Adicionando o arquivo overlay_sync.ldif
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/overlay_sync.ldif"
+     become: true
+     become_user: root
+
+   - name: Escrevendo no arquivo overlay_accesslog.ldif
+     blockinfile:
+       dest: /home/ubuntu/overlay_accesslog.ldif
+       block: |
+         dn: olcOverlay={1}accesslog,olcDatabase={1}mdb,cn=config
+         objectClass: olcAccessLogConfig
+         objectClass: olcOverlayConfig
+         olcAccessLogDB: cn=accesslog
+         olcOverlay: {1}accesslog
+         olcAccessLogOps: writes
+         olcAccessLogPurge: 07+00:00 01+00:00
+         olcAccessLogSuccess: TRUE
+
+
+   - name: Adicionando o arquivo overlay_accesslog.ldif
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/overlay_accesslog.ldif"
+     become: true
+     become_user: root
+
+
+   - name: Escrevendo no arquivo overlay_sync_accesslog.ldif
+     blockinfile:
+       dest: /home/ubuntu/overlay_sync_accesslog.ldif
+       block: |
+         olcSuffix: cn=accesslog
+         dn: olcOverlay={0}syncprov,olcDatabase={2}mdb,cn=config
+         objectClass: olcConfig
+         objectClass: olcOverlayConfig
+         objectClass: olcSyncProvConfig
+         objectClass: top
+         olcOverlay: {0}syncprov
+         olcSpNoPresent: TRUE
+         olcSpReloadHint: TRUE
+
+
+   - name: Adicionando o arquivo overlay_sync_accesslog.ldif
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/overlay_sync_accesslog.ldif"
+     become: true
+     become_user: root
+
+   - name: Escrevendo no arquivo replicator_config.ldif
+     blockinfile:
+       dest: /home/ubuntu/replicator_config.ldif
+       block: |
+         dn: olcDatabase={1}mdb,cn=config
+         changetype: modify
+         add: olcAccess
+         olcAccess: {3}to * by dn="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" write
+
+
+
+   - name: Adicionando o arquivo replicator_config.ldif
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/replicator_config.ldif"
+     become: true
+     become_user: root
+
+   - name: Escrevendo no arquivo replicator_config2.ldif
+     blockinfile:
+       dest: /home/ubuntu/replicator_config2.ldif
+       block: |
+         dn: olcDatabase={1}mdb,cn=config
+         changetype: modify
+         add: olcAccess
+         olcAccess: {0}to *
+           by dn.exact="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" read
+           by * break
+         -
+         add: olcLimits
+         olcLimits: dn.exact="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com"
+           time.soft=unlimited time.hard=unlimited
+           size.soft=unlimited size.hard=unlimited
+
+   - name: Adicionando o arquivo replicator_config2.ldif
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/replicator_config2.ldif"
+     become: true
+     become_user: root
+
+
+
+
+
+
+
+
+

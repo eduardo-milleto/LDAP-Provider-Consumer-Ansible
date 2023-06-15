@@ -60,7 +60,7 @@
      blockinfile:
        dest: /home/ubuntu/replicator.ldif
        block: |
-         dn: cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com
+         dn: cn=replicator,dc=dev,dc=ufrgs,dc=br
          objectClass: simpleSecurityObject
          objectClass: organizationalRole
          cn: replicator
@@ -70,7 +70,7 @@
      become_user: root
   
    - name: Adicionar replicator.ldif
-     command: ldapadd -x -D 'cn=admin,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com' -w '123' -H ldapi:/// -f /home/ubuntu/replicator.ldif
+     command: ldapadd -x -D 'cn=admin,dc=dev,dc=ufrgs,dc=br' -w '123' -H ldapi:/// -f /home/ubuntu/replicator.ldif
      become: true
      become_user: root
 
@@ -106,11 +106,11 @@
          olcDatabase: {2}mdb
          olcDbDirectory: /var/lib/ldap/accesslog
          olcSuffix: cn=accesslog
-         olcRootDN: cn=admin,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com
+         olcRootDN: cn=admin,dc=dev,dc=ufrgs,dc=br
          olcDbIndex: default eq
          olcDbIndex: entryCSN,objectClass,reqEnd,reqResult,reqStart
-         olcAccess: {0}to * by dn.exact="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" read by * break
-         olcLimits: dn.exact="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com"
+         olcAccess: {0}to * by dn.exact="cn=replicator,dc=dev,dc=ufrgs,dc=br" read by * break
+         olcLimits: dn.exact="cn=replicator,dc=dev,dc=ufrgs,dc=br"
            time.soft=unlimited time.hard=unlimited
            size.soft=unlimited size.hard=unlimited
 
@@ -201,7 +201,7 @@
          dn: olcDatabase={1}mdb,cn=config
          changetype: modify
          add: olcAccess
-         olcAccess: {3}to * by dn="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" write
+         olcAccess: {3}to * by dn="cn=replicator,dc=dev,dc=ufrgs,dc=br" write
 
 
 
@@ -218,11 +218,11 @@
          changetype: modify
          add: olcAccess
          olcAccess: {0}to *
-           by dn.exact="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" read
+           by dn.exact="cn=replicator,dc=dev,dc=ufrgs,dc=br" read
            by * break
          -
          add: olcLimits
-         olcLimits: dn.exact="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com"
+         olcLimits: dn.exact="cn=replicator,dc=dev,dc=ufrgs,dc=br"
            time.soft=unlimited time.hard=unlimited
            size.soft=unlimited size.hard=unlimited
 

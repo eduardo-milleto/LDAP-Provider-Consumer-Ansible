@@ -1,29 +1,33 @@
----
-- hosts: consumer
 
+- name: Deploy template
+  hosts: initial_setup
   roles:
-    - configure-openldap
-    - consumer
+        #- install-xentools-packages
+        - install-epel-repo
+        - update-system-packages
+        - manage-basic-packages
+        - configure-snmp
+        - configure-ntp
+        - configure-firewall
+        - configure-rules-firewall
+        - install-xinetd
+          #      - install-dataprotector-packages
+          #- configure-sshd
+        - configure-postfix
+        - configure-sudoers
+        - create-dsu-users
+        - create-users-prompt
+        - configure-customizations
+
 
   vars_prompt:
-    - name: "ldap_admin_cnconfig_password"
-      prompt: "Digite sua senha:"
-      private: yes
-    - name: "replicator_pass"
-      prompt: "Digite do usuário replicator"
-      private: yes
+        - name: "username"
+          prompt: "Informe o nome do usuário "
+          private: no
 
-- hosts: provider
-
-  roles:
-    - configure-openldap
-    - provider
-
-  vars_prompt:
-    - name: "ldap_admin_cnconfig_password"
-      prompt: "Digite sua senha:"
-      private: yes
-    - name: "replicator_pass"
-      prompt: "Digite do usuário replicator"
-      private: yes
+        - name: "password"
+          prompt: "Informe uma senha para o usuário "
+          private: yes
+          encrypt: "md5_crypt"
+          salt_size: 7
 

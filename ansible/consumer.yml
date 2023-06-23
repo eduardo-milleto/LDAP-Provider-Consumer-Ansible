@@ -17,20 +17,17 @@
        path: "{{ item }}"
        state: touch
      loop:
-       - /home/eduardom/admin.ldif
-       - /home/eduardom/module.ldif
-       - /home/eduardom/replicator.ldif
-       - /home/eduardom/replicator_config.ldif
-       - /home/eduardom/replicator_config2.ldif
-       - /home/eduardom/consumer.ldif
-     become: true
-     become_user: root
-
+       - /home/ubuntu/admin.ldif
+       - /home/ubuntu/module.ldif
+       - /home/ubuntu/replicator.ldif
+       - /home/ubuntu/replicator_config.ldif
+       - /home/ubuntu/replicator_config2.ldif
+       - /home/ubuntu/consumer.ldif
 
 
    - name: Escrever conteúdo LDIF em admin.ldif
      blockinfile:
-       dest: /home/eduardom/admin.ldif
+       dest: /home/ubuntu/admin.ldif
        block: |
          dn: olcDatabase={0}config,cn=config
          changetype: modify
@@ -41,16 +38,16 @@
 
 
    - name: Adicionar admin.ldif
-     command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /home/eduardom/admin.ldif
+     command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/admin.ldif
      become: true
      become_user: root
 
 
    - name: Escrevendo no replicator.ldif
      blockinfile:
-       dest: /home/eduardom/replicator.ldif
+       dest: /home/ubuntu/replicator.ldif
        block: |
-         dn: cn=replicator,dc=dev,dc=ufrgs,dc=br
+         dn: cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com
          objectClass: simpleSecurityObject
          objectClass: organizationalRole
          cn: replicator
@@ -60,88 +57,86 @@
      become_user: root
   
    - name: Adicionar replicator.ldif
-     command: ldapadd -x -D 'cn=admin,dc=dev,dc=ufrgs,dc=br' -w '123' -H ldapi:/// -f /home/eduardom/replicator.ldif
+     command: ldapadd -x -D 'cn=admin,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com' -w '123' -H ldapi:/// -f /home/ubuntu/replicator.ldif
      become: true
      become_user: root
 
 
    - name: Escrever conteúdo LDIF em module.ldif
      blockinfile:
-       dest: /home/eduardom/module.ldif
+       dest: /home/ubuntu/module.ldif
        block: |
          dn: cn=module,cn=config
+         changetype: add
          objectClass: olcModuleList
          cn: module
          olcModulePath: /usr/lib/ldap/
          olcModuleLoad: accesslog.la
          olcModuleLoad: syncprov.la
-
      become: true
      become_user: root
 
 
    - name: Adicionar module.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/module.ldif"
+     command: ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/module.ldif
      become: true
      become_user: root
 
    - name: Escrevendo no arquivo replicator_config.ldif
      blockinfile:
-       dest: /home/eduardom/replicator_config.ldif
+       dest: /home/ubuntu/replicator_config.ldif
        block: |
          dn: olcDatabase={1}mdb,cn=config
          changetype: modify
          add: olcAccess
-         olcAccess: {3}to * by dn="cn=replicator,dc=dev,dc=ufrgs,dc=br" write
+         olcAccess: {3}to * by dn="cn=replicator,dc=dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" write
 
    - name: Adicionando o arquivo replicator_config.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/replicator_config.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/replicator_config.ldif"
      become: true
      become_user: root
 
    - name: Escrevendo no arquivo replicator_config2.ldif
      blockinfile:
-       dest: /home/eduardom/replicator_config2.ldif
+       dest: /home/ubuntu/replicator_config2.ldif
        block: |
          dn: olcDatabase={1}mdb,cn=config
          changetype: modify
          add: olcAccess
          olcAccess: {0}to *
-           by dn.exact="cn=replicator,dc=dev,dc=ufrgs,dc=br" read
+           by dn.exact="cn=replicator,dc=dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" read
            by * break
          -
          add: olcLimits
-         olcLimits: dn.exact="cn=replicator,dc=dev,dc=ufrgs,dc=br"
+         olcLimits: dn.exact="cn=replicator,dc=dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com"
            time.soft=unlimited time.hard=unlimited
            size.soft=unlimited size.hard=unlimited
 
    - name: Adicionando o arquivo replicator_config2.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/replicator_config2.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/replicator_config2.ldif"
      become: true
      become_user: root
 
    - name: Escrevendo no arquivo consumer.ldif
      blockinfile:
-       dest: /home/eduardom/consumer.ldif
+       dest: /home/ubuntu/consumer.ldif
        block: |
          add: olcSyncrepl
          olcSyncrepl: rid=0
-           provider=ldap://143.54.4.129
+           provider=ldap://52.91.167.240 
            bindmethod=simple
-           binddn="cn=replicator,dc=dev,dc=ufrgs,dc=br" 
+           binddn="cn=replicator,dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com" 
            credentials="2008"
-           searchbase="dc=dev,dc=ufrgs,dc=br"
+           searchbase="dc=ec2-52-91-167-240,dc=compute-1,dc=amazonaws,dc=com"
            logbase="cn=accesslog"
            logfilter="(&(objectClass=auditWriteObject)(reqResult=0))"
            schemachecking=on
            type=refreshAndPersist retry="60 +"
            syncdata=accesslog
            starttls=critical tls_reqcert=demand 
-     become: true
-     become_user: root
-
 
    - name: Adicionando o arquivo consumer.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/consumer.ldif"
-     become: true
-     become_user: root
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/consumer.ldif"
+     becomer: true
+     becomer_user: root
+

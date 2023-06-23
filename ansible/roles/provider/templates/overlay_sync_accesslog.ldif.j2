@@ -1,0 +1,9 @@
+olcSuffix: cn=accesslog
+dn: olcOverlay={0}syncprov,olcDatabase={2}mdb,cn=config
+objectClass: olcConfig
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+objectClass: top
+olcOverlay: {0}syncprov
+olcSpNoPresent: TRUE
+olcSpReloadHint: TRUE

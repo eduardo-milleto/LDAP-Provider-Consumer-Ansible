@@ -1,0 +1,169 @@
+# Verificação inicial da instalação do LDAP
+
+- name: Verificar se o pacote Slapd já está instalado
+  shell: dpkg -s slapd
+  register: slapd_status
+  ignore_errors: true
+  become: true
+  become_user: root
+
+- name: Instalar pacote Slapd se for Ubuntu
+  apt:
+    name: slapd
+    state: present
+  when: ansible_os_family == "Debian" and slapd_status.rc != 0
+  become: true
+  become_user: root
+
+- name: Instalar pacote Slapd se for REdHat
+  yum:
+    name: slapd
+    state: present
+  when: ansible_os_family == "RedHat" and slapd_status.rc != 0
+  become: true
+  become_user: root
+
+# Criação de diretórios
+
+- name: Criar o diretório "ldap_files"
+  file:
+    path: /home/ldap_files
+    state: directory
+    owner: root
+    group: root
+  become: true
+  become_user: root
+
+- name: Criar o diretório "templates"
+  file:
+    path: /home/ldap_files/templates
+    state: directory
+    owner: root
+    group: root
+  become: true
+  become_user: root
+
+# Transferência dos arquivos da pasta "files" do "configure-openldap"
+
+- copy:
+    src: "{{ item }}"
+    dest: /home/ldap_files/files_configuration/
+    owner: root
+    mode: 600
+  with_fileglob:
+    - "/home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/configure-openldap/files/*"
+  become: true
+  become_user: root
+
+# Templates nos arquivos do "configure-openldap"
+
+- name: Dar template no arquivo "admin.ldif"
+  ansible.builtin.template:
+    src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/configure-openldap/templates/admin.ldif.j2
+    dest: /home/ldap_files/templates/admin.ldif
+    owner: root
+    group: wheel
+    mode: '0644'
+  become: true
+  become_user: root
+
+- name: Dar template no arquivo "replicator.ldif"
+  ansible.builtin.template:
+    src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/configure-openldap/templates/replicator.ldif.j2
+    dest: /home/ldap_files/templates/replicator.ldif
+    owner: root
+    group: wheel
+    mode: '0644'
+  become: true
+  become_user: root
+
+
+- name: Dar template no arquivo "replicator_config.ldif"
+  ansible.builtin.template:
+    src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/configure-openldap/templates/replicator_config.ldif.j2
+    dest: /home/ldap_files/templates/replicator_config.ldif
+    owner: root
+    group: wheel
+    mode: '0644'
+  become: true
+  become_user: root
+
+
+- name: Dar template no arquivo "replicator_config2.ldif"
+  ansible.builtin.template:
+    src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/configure-openldap/templates/replicator_config2.ldif.j2
+    dest: /home/ldap_files/templates/replicator_config2.ldif
+    owner: root
+    group: wheel
+    mode: '0644'
+  become: true
+  become_user: root
+
+# Adição dos arquivos dos templates do "configure-openldap"
+
+- name: Adicionar o arquivo "admin.ldif"
+  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/admin.ldif
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "replicator.ldif"
+  command: ldapadd -x -D 'cn=admin,dc=dev,dc=ufrgs,dc=br' -w '123' -H ldapi:/// -f /home/ldap_files/templates/replicator.ldif
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "replicator_config.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/replicator_config.ldif"
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "replicator_config2.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/replicator_config2.ldif"
+  become: true
+  become_user: root
+
+  # Adicionar todos os schemas e arquivos padrões para o LDAP
+
+- name: Adicionar o arquivo "change_DbMaxSize.ldif"
+  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/change-DbMaxSize.ldif
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "change-LogLevel.ldif"
+  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/change-LogLevel.ldif
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "misc.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/misc.ldif"
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "schema-eduperson.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/schema-eduperson.ldif"
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "schema-ufrgs.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/schema-ufrgs.ldif"
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "schema-authldap.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/schema-authldap.ldif"
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "schema-samba.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/schema-samba.ldif"
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "schema-ufrgsGrupo.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/schema-ufrgsGrupo.ldif"
+  become: true
+  become_user: root
+
+- name: Adicionar o arquivo "create-indexes.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/create-indexes.ldif"
+  become: true
+  become_user: root

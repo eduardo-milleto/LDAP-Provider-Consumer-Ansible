@@ -1,0 +1,23 @@
+# Template dos arquivos do "consumer"
+
+- name: Dar template no arquivo "consumer.ldif"
+  ansible.builtin.template:
+    src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/consumer/templates/consumer.ldif.j2
+    dest: /home/ldap_files/templates/consumer.ldif
+    owner: root
+    group: wheel
+    mode: '0644'
+  become: true
+  become_user: root
+
+# Adição dos arquivos do consumer
+
+- name: Adicionando o arquivo "provider_active_modules.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/provider-active-modules.ldif"
+  become: true
+  become_user: root
+
+- name: Adicionando o arquivo "consumer.ldif"
+  command: ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/consumer.ldif
+  become: true
+  become_user: root

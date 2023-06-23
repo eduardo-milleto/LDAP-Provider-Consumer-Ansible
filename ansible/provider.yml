@@ -17,16 +17,18 @@
        path: "{{ item }}"
        state: touch
      loop:
-       - /home/ubuntu/admin.ldif
-       - /home/ubuntu/module.ldif
-       - /home/ubuntu/replicator.ldif
-       - /home/ubuntu/new_database.ldif
-       - /home/ubuntu/index_sync.ldif
-       - /home/ubuntu/overlay_sync.ldif
-       - /home/ubuntu/overlay_accesslog.ldif
-       - /home/ubuntu/overlay_sync_accesslog.ldif
-       - /home/ubuntu/replicator_config.ldif
-       - /home/ubuntu/replicator_config2.ldif
+       - /home/eduardom/ansible_provider/admin.ldif
+       - /home/eduardom/ansible_provider/module.ldif
+       - /home/eduardom/ansible_provider/replicator.ldif
+       - /home/eduardom/ansible_provider/new_database.ldif
+       - /home/eduardom/ansible_provider/index_sync.ldif
+       - /home/eduardom/ansible_provider/overlay_sync.ldif
+       - /home/eduardom/ansible_provider/overlay_accesslog.ldif
+       - /home/eduardom/ansible_provider/overlay_sync_accesslog.ldif
+       - /home/eduardom/ansible_provider/replicator_config.ldif
+       - /home/eduardom/ansible_provider/replicator_config2.ldif
+     become: true
+     become_user: root
 
 
    - name: Crie o diretório accesslog
@@ -40,7 +42,7 @@
 
    - name: Escrever conteúdo LDIF em admin.ldif
      blockinfile:
-       dest: /home/ubuntu/admin.ldif
+       dest: /home/eduardom/ansible_provider/admin.ldif
        block: |
          dn: olcDatabase={0}config,cn=config
          changetype: modify
@@ -51,14 +53,14 @@
 
 
    - name: Adicionar admin.ldif
-     command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/admin.ldif
+     command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/admin.ldif
      become: true
      become_user: root
 
 
    - name: Escrevendo no replicator.ldif
      blockinfile:
-       dest: /home/ubuntu/replicator.ldif
+       dest: /home/eduardom/ansible_provider/replicator.ldif
        block: |
          dn: cn=replicator,dc=dev,dc=ufrgs,dc=br
          objectClass: simpleSecurityObject
@@ -70,35 +72,35 @@
      become_user: root
   
    - name: Adicionar replicator.ldif
-     command: ldapadd -x -D 'cn=admin,dc=dev,dc=ufrgs,dc=br' -w '123' -H ldapi:/// -f /home/ubuntu/replicator.ldif
+     command: ldapadd -x -D 'cn=admin,dc=dev,dc=ufrgs,dc=br' -w '123' -H ldapi:/// -f /home/eduardom/ansible_provider/replicator.ldif
      become: true
      become_user: root
 
 
    - name: Escrever conteúdo LDIF em module.ldif
      blockinfile:
-       dest: /home/ubuntu/module.ldif
+       dest: /home/eduardom/ansible_provider/module.ldif
        block: |
          dn: cn=module,cn=config
-         changetype: add
          objectClass: olcModuleList
          cn: module
          olcModulePath: /usr/lib/ldap/
          olcModuleLoad: accesslog.la
          olcModuleLoad: syncprov.la
+
      become: true
      become_user: root
 
 
    - name: Adicionar module.ldif
-     command: ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/module.ldif
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/module.ldif"
      become: true
      become_user: root
 
 
    - name: Escrevendo no arquivo new_database.ldif
      blockinfile:
-       dest: /home/ubuntu/new_database.ldif
+       dest: /home/eduardom/ansible_provider/new_database.ldif
        block: |
          dn: olcDatabase={2}mdb,cn=config
          objectClass: olcDatabaseConfig
@@ -113,16 +115,18 @@
          olcLimits: dn.exact="cn=replicator,dc=dev,dc=ufrgs,dc=br"
            time.soft=unlimited time.hard=unlimited
            size.soft=unlimited size.hard=unlimited
+     become: true
+     become_user: root
 
 
    - name: Adicionando o new_database.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/new_database.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/new_database.ldif"
      become: true
      become_user: root
 
    - name: Escrevendo no arquivo index_sync.ldif
      blockinfile:
-       dest: /home/ubuntu/index_sync.ldif
+       dest: /home/eduardom/ansible_provider/index_sync.ldif
        block: |
          dn: olcDatabase={1}mdb,cn=config
          changetype: modify
@@ -131,15 +135,17 @@
          -
          add: olcDbIndex
          olcDbIndex: entryUUID eq
+     become: true
+     become_user: root
 
    - name: Adicionando o arquivo index_sync.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/index_sync.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/index_sync.ldif"
      become: true
      become_user: root
     
    - name: Escrevendo no arquivo overlay_sync.ldif
      blockinfile:
-       dest: /home/ubuntu/overlay_sync.ldif
+       dest: /home/eduardom/ansible_provider/overlay_sync.ldif
        block: |
          dn: olcOverlay={1}syncprov,olcDatabase={1}mdb,cn=config
          objectClass: olcConfig
@@ -148,16 +154,19 @@
          objectClass: top
          olcOverlay: {1}syncprov
          olcSpCheckpoint: 20 5
+     become: true
+     become_user: root
 
    - name: Adicionando o arquivo overlay_sync.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/overlay_sync.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/overlay_sync.ldif"
      become: true
      become_user: root
 
    - name: Escrevendo no arquivo overlay_accesslog.ldif
      blockinfile:
-       dest: /home/ubuntu/overlay_accesslog.ldif
+       dest: /home/eduardom/ansible_provider/overlay_accesslog.ldif
        block: |
+         olcSuffix: cn=accesslog
          dn: olcOverlay={1}accesslog,olcDatabase={1}mdb,cn=config
          objectClass: olcAccessLogConfig
          objectClass: olcOverlayConfig
@@ -166,17 +175,20 @@
          olcAccessLogOps: writes
          olcAccessLogPurge: 07+00:00 01+00:00
          olcAccessLogSuccess: TRUE
+     become: true
+     become_user: root
+        
 
 
    - name: Adicionando o arquivo overlay_accesslog.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/overlay_accesslog.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/overlay_accesslog.ldif"
      become: true
      become_user: root
 
 
    - name: Escrevendo no arquivo overlay_sync_accesslog.ldif
      blockinfile:
-       dest: /home/ubuntu/overlay_sync_accesslog.ldif
+       dest: /home/eduardom/ansible_provider/overlay_sync_accesslog.ldif
        block: |
          olcSuffix: cn=accesslog
          dn: olcOverlay={0}syncprov,olcDatabase={2}mdb,cn=config
@@ -187,32 +199,37 @@
          olcOverlay: {0}syncprov
          olcSpNoPresent: TRUE
          olcSpReloadHint: TRUE
+     become: true
+     become_user: root
 
 
    - name: Adicionando o arquivo overlay_sync_accesslog.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/overlay_sync_accesslog.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/overlay_sync_accesslog.ldif"
      become: true
      become_user: root
 
    - name: Escrevendo no arquivo replicator_config.ldif
      blockinfile:
-       dest: /home/ubuntu/replicator_config.ldif
+       dest: /home/eduardom/replicator_config.ldif
        block: |
          dn: olcDatabase={1}mdb,cn=config
          changetype: modify
          add: olcAccess
          olcAccess: {3}to * by dn="cn=replicator,dc=dev,dc=ufrgs,dc=br" write
+     become: true
+     become_user: root
+        
 
 
 
    - name: Adicionando o arquivo replicator_config.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/replicator_config.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/replicator_config.ldif"
      become: true
      become_user: root
 
    - name: Escrevendo no arquivo replicator_config2.ldif
      blockinfile:
-       dest: /home/ubuntu/replicator_config2.ldif
+       dest: /home/eduardom/replicator_config2.ldif
        block: |
          dn: olcDatabase={1}mdb,cn=config
          changetype: modify
@@ -225,9 +242,11 @@
          olcLimits: dn.exact="cn=replicator,dc=dev,dc=ufrgs,dc=br"
            time.soft=unlimited time.hard=unlimited
            size.soft=unlimited size.hard=unlimited
+     become: true
+     become_user: root
 
    - name: Adicionando o arquivo replicator_config2.ldif
-     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ubuntu/replicator_config2.ldif"
+     shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/eduardom/ansible_provider/replicator_config2.ldif"
      become: true
      become_user: root
 

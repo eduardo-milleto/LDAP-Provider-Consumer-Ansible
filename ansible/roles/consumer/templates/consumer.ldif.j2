@@ -1,0 +1,14 @@
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcSyncRepl
+olcSyncRepl: rid=1
+  provider=ldap://143.54.4.129
+  type=RefreshAndPersist
+  bindmethod=simple
+  binddn="cn=replicator,dc=dev,dc=ufrgs,dc=br"
+  credentials="123"
+  searchbase="dc=dev,dc=ufrgs,dc=br"
+  logbase="cn=accesslog"
+  logfilter="(&(objectClass=auditWriteObject)(reqResult=0))"
+  retry="60 20 300 10"
+  syncdata=accesslog

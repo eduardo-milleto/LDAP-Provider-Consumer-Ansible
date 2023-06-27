@@ -13,7 +13,7 @@
 
 - copy:
     src: "{{ item }}"
-    dest: /home/ldap_files/files_configuration/
+    dest: /tmp/ufrgs-ldap/files_configuration/
     owner: root
     mode: 777
   with_fileglob:
@@ -24,14 +24,14 @@
 # Templates e adição dos arquivos da pasta "templates" do "provider"
 
 - name: Adicionando o arquivo "provider_active_modules.ldif"
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/provider-active-modules.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-ldap/files_configuration/provider-active-modules.ldif"
   become: true
   become_user: root
 
 - name: Dar template no arquivo "new_database.ldif"
   ansible.builtin.template:
     src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/provider/templates/new_database.ldif.j2
-    dest: /home/ldap_files/templates/new_database.ldif
+    dest: /tmp/ufrgs-ldap/templates/new_database.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -39,14 +39,14 @@
   become_user: root
 
 - name: Adicionar new_database.ldif
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/new_database.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-ldap/templates/new_database.ldif"
   become: true
   become_user: root
 
 - name: Dar template no arquivo "overlay_sync.ldif"
   ansible.builtin.template:
     src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/provider/templates/overlay_sync.ldif.j2
-    dest: /home/ldap_files/templates/overlay_sync.ldif
+    dest: /tmp/ufrgs-ldap/templates/overlay_sync.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -55,14 +55,14 @@
 
 
 - name: Adicionar overlay_sync.ldif
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/overlay_sync.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-ldap/templates/overlay_sync.ldif"
   become: true
   become_user: root
 
 - name: Dar template no arquivo "overlay_accesslog.ldif"
   ansible.builtin.template:
     src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/provider/templates/overlay_accesslog.ldif.j2
-    dest: /home/ldap_files/templates/overlay_accesslog.ldif
+    dest: /tmp/ufrgs-ldap/templates/overlay_accesslog.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -70,14 +70,14 @@
   become_user: root
 
 - name: Adicionar overlay_accesslog.ldif
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/overlay_accesslog.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-ldap/templates/overlay_accesslog.ldif"
   become: true
   become_user: root
 
 - name: Dar template no arquivo "overlay_sync_accesslog.ldif"
   ansible.builtin.template:
     src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/provider/templates/overlay_sync_accesslog.ldif.j2
-    dest: /home/ldap_files/templates/overlay_sync_accesslog.ldif
+    dest: /tmp/ufrgs-ldap/templates/overlay_sync_accesslog.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -86,6 +86,16 @@
 
 
 - name: Adicionar overlay_sync_accesslog.ldif
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/overlay_sync_accesslog.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-ldap/templates/overlay_sync_accesslog.ldif"
   become: true
   become_user: root
+
+  # Excluir pasta-mãe dos arquivos de instalação LDAP
+
+- name: Remover pasta-mãe dos arquivos de instalação LDAP
+  ansible.builtin.file:
+    path: /tmp/ufrgs-ldap
+    state: absent
+  become: true
+  become_user: root
+

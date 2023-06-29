@@ -1,27 +1,50 @@
 # Verificação inicial da instalação do LDAP
 
-- name: Verificar se o pacote Slapd já está instalado
-  shell: dpkg -s slapd
-  register: slapd_status
-  ignore_errors: true
+- name: Obter informações sobre os pacotes já instalados
+  package_facts:
+    manager: auto
+
+- name: Verificar se LDAP já está instalado
+  block:
+    - name: Mostrar mensagem de pacote já instalado
+      debug:
+        msg: "O pacote LDAP já está instalado."
+      when: "'slapd ldap-utils' in ansible_facts.packages"
+
+# Configuração inicial dos parametros do LDAP
+
+- name: Configuração LDAP
+  shell: |
+    debconf-set-selections <<-EOF
+    slapd slapd/internal/generated_adminpw password {{ ldap_user_pass }}
+    slapd slapd/internal/adminpw password {{ ldap_user_pass }}
+    slapd slapd/password2 password {{ ldap_user_pass }}
+    slapd slapd/password1 password {{ ldap_user_pass }}
+    slapd slapd/invalid_config boolean true
+    slapd slapd/move_old_database boolean true
+    slapd slapd/purge_database boolean false
+    slapd slapd/no_configuration boolean false
+    slapd slapd/domain string dev.ufrgs.br
+    slapd shared/organization string Universidade Federal do Rio Grande do Sul
+    slapd slapd/dump_database_destdir string /var/backups/slapd-VERSION
+    slapd slapd/dump_database select when needed
+    EOF
+    export DEBIAN_FRONTEND=noninteractive
   become: true
   become_user: root
 
-- name: Instalar pacote Slapd se for Ubuntu
-  apt:
-    name: slapd
+# instalação do LDAP, caso ele não esteja instalado
+
+- name: Instalação LDAP
+  package:
+    name: 
+      - slapd 
+      - ldap-utils
     state: present
-  when: ansible_os_family == "Debian" and slapd_status.rc != 0
+  when: "'slapd ldap-utils' not in ansible_facts.packages"
   become: true
   become_user: root
 
-- name: Instalar pacote Slapd se for REdHat
-  yum:
-    name: slapd
-    state: present
-  when: ansible_os_family == "RedHat" and slapd_status.rc != 0
-  become: true
-  become_user: root
 
 # Criação de diretórios
 
@@ -107,7 +130,7 @@
   become_user: root
 
 - name: Adicionar o arquivo "replicator.ldif"
-  command: ldapadd -x -D 'cn=admin,dc=dev,dc=ufrgs,dc=br' -w '123' -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator.ldif
+  command: ldapadd -x -D 'cn=admin,dc=dev,dc=ufrgs,dc=br' -w '{{ ldap_user_pass }}' -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator.ldif
   become: true
   become_user: root
 

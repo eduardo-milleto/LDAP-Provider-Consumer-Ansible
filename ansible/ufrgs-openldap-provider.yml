@@ -5,10 +5,12 @@
     - provider
 
   vars_prompt:
+    - name: "ldap_user_pass"
+      prompt: "Digite a senha do usuário LDAP"
+      private: yes
     - name: "ldap_admin_cnconfig_password"
-      prompt: "Digite a senha do usuário admin:"
+      prompt: "Digite a senha do usuário admin"
       private: yes
     - name: "replicator_pass"
       prompt: "Digite a senha do usuário replicator"
       private: yes
-

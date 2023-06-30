@@ -2,8 +2,8 @@
 
 - name: Dar template no arquivo "consumer.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/consumer/templates/consumer.ldif.j2
-    dest: /home/ldap_files/templates/consumer.ldif
+    src: /home/eduardom/ansible/openldap/ansible/roles/consumer/templates/consumer.ldif.j2
+    dest: /tmp/ufrgs-openldap/templates/consumer.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -13,11 +13,20 @@
 # Adição dos arquivos do consumer
 
 - name: Adicionando o arquivo "provider_active_modules.ldif"
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/files_configuration/provider-active-modules.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/provider-active-modules.ldif"
   become: true
   become_user: root
 
 - name: Adicionando o arquivo "consumer.ldif"
-  command: ldapadd -Y EXTERNAL -H ldapi:/// -f /home/ldap_files/templates/consumer.ldif
+  command: ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/consumer.ldif
+  become: true
+  become_user: root
+
+  # Excluir pasta-mãe dos arquivos de instalação LDAP
+
+- name: Remover pasta-mãe dos arquivos de instalação LDAP
+  ansible.builtin.file:
+    path: /tmp/ufrgs-openldap
+    state: absent
   become: true
   become_user: root

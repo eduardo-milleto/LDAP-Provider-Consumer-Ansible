@@ -74,7 +74,7 @@
     owner: root
     mode: 600
   with_fileglob:
-    - "/home/eduardom/ansible/openldap/ansible/roles/configure-openldap/files/*"
+    - "files/*"
   become: true
   become_user: root
 
@@ -82,7 +82,7 @@
 
 - name: Dar template no arquivo "admin.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/configure-openldap/templates/admin.ldif.j2
+    src: templates/admin.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/admin.ldif
     owner: root
     group: wheel
@@ -92,7 +92,7 @@
 
 - name: Dar template no arquivo "replicator.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/configure-openldap/templates/replicator.ldif.j2
+    src: templates/replicator.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/replicator.ldif
     owner: root
     group: wheel
@@ -103,7 +103,7 @@
 
 - name: Dar template no arquivo "replicator_config.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/configure-openldap/templates/replicator_config.ldif.j2
+    src: templates/replicator_config.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/replicator_config.ldif
     owner: root
     group: wheel
@@ -114,7 +114,7 @@
 
 - name: Dar template no arquivo "replicator_config2.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/configure-openldap/templates/replicator_config2.ldif.j2
+    src: templates/replicator_config2.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/replicator_config2.ldif
     owner: root
     group: wheel

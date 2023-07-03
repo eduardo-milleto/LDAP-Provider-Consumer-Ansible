@@ -2,7 +2,7 @@
 
 - name: Dar template no arquivo "consumer.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/consumer/templates/consumer.ldif.j2
+    src: templates/consumer.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/consumer.ldif
     owner: root
     group: wheel

@@ -17,7 +17,7 @@
     owner: root
     mode: 777
   with_fileglob:
-    - "/home/eduardom/ansible/openldap/openldap2/openldap/ansible/roles/provider/files/*"
+    - "files/*"
   become: true
   become_user: root
 
@@ -30,7 +30,7 @@
 
 - name: Dar template no arquivo "new_database.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/provider/templates/new_database.ldif.j2
+    src: templates/new_database.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/new_database.ldif
     owner: root
     group: wheel
@@ -45,7 +45,7 @@
 
 - name: Dar template no arquivo "overlay_sync.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/provider/templates/overlay_sync.ldif.j2
+    src: templates/overlay_sync.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/overlay_sync.ldif
     owner: root
     group: wheel
@@ -61,7 +61,7 @@
 
 - name: Dar template no arquivo "overlay_accesslog.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/provider/templates/overlay_accesslog.ldif.j2
+    src: templates/overlay_accesslog.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/overlay_accesslog.ldif
     owner: root
     group: wheel
@@ -76,7 +76,7 @@
 
 - name: Dar template no arquivo "overlay_sync_accesslog.ldif"
   ansible.builtin.template:
-    src: /home/eduardom/ansible/openldap/ansible/roles/provider/templates/overlay_sync_accesslog.ldif.j2
+    src: templates/overlay_sync_accesslog.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/overlay_sync_accesslog.ldif
     owner: root
     group: wheel

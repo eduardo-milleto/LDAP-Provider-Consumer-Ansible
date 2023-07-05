@@ -28,22 +28,22 @@
   become: true
   become_user: root
 
-- name: Dar template no arquivo "new_database.ldif"
+- name: Gerar arquivo "create_accesslog.ldif"
   ansible.builtin.template:
-    src: templates/new_database.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/new_database.ldif
+    src: templates/create_accesslog.ldif.j2
+    dest: /tmp/ufrgs-openldap/templates/create_accesslog.ldif
     owner: root
     group: wheel
     mode: '0644'
   become: true
   become_user: root
 
-- name: Adicionar new_database.ldif
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/new_database.ldif"
+- name: Importar "create_accesslog.ldif" - criar database accesslog
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/create_accesslog.ldif"
   become: true
   become_user: root
 
-- name: Dar template no arquivo "overlay_sync.ldif"
+- name: Gerar arquivo "overlay_sync.ldif"
   ansible.builtin.template:
     src: templates/overlay_sync.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/overlay_sync.ldif
@@ -53,13 +53,12 @@
   become: true
   become_user: root
 
-
-- name: Adicionar overlay_sync.ldif
+- name: Importar "overlay_sync.ldif" - habilita overlay syncprov
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_sync.ldif"
   become: true
   become_user: root
 
-- name: Dar template no arquivo "overlay_accesslog.ldif"
+- name: Gerar arquivo "overlay_accesslog.ldif"
   ansible.builtin.template:
     src: templates/overlay_accesslog.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/overlay_accesslog.ldif
@@ -69,12 +68,12 @@
   become: true
   become_user: root
 
-- name: Adicionar overlay_accesslog.ldif
+- name: Importar "overlay_accesslog.ldif" - habilita overlay accesslog 
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_accesslog.ldif"
   become: true
   become_user: root
 
-- name: Dar template no arquivo "overlay_sync_accesslog.ldif"
+- name: Gerar arquivo "overlay_sync_accesslog.ldif"
   ansible.builtin.template:
     src: templates/overlay_sync_accesslog.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/overlay_sync_accesslog.ldif
@@ -84,8 +83,7 @@
   become: true
   become_user: root
 
-
-- name: Adicionar overlay_sync_accesslog.ldif
+- name: Importar "overlay_sync_accesslog.ldif" - habilita overlay syncprov na database accesslog
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_sync_accesslog.ldif"
   become: true
   become_user: root

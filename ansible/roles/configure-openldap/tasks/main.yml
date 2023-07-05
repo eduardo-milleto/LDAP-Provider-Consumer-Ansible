@@ -24,7 +24,7 @@
     slapd slapd/move_old_database boolean true
     slapd slapd/purge_database boolean false
     slapd slapd/no_configuration boolean false
-    slapd slapd/domain string dev.ufrgs.br
+    slapd slapd/domain string ufrgs.br
     slapd shared/organization string Universidade Federal do Rio Grande do Sul
     slapd slapd/dump_database_destdir string /var/backups/slapd-VERSION
     slapd slapd/dump_database select when needed
@@ -35,7 +35,7 @@
 
 # instalação do LDAP, caso ele não esteja instalado
 
-- name: Instalação LDAP
+- name: Instalar OpenLDAP
   package:
     name: 
       - slapd 
@@ -80,7 +80,7 @@
 
 # Templates nos arquivos do "configure-openldap"
 
-- name: Dar template no arquivo "admin.ldif"
+- name: Gerar arquivo "admin.ldif"
   ansible.builtin.template:
     src: templates/admin.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/admin.ldif
@@ -90,7 +90,7 @@
   become: true
   become_user: root
 
-- name: Dar template no arquivo "replicator.ldif"
+- name: Gerar arquivo "replicator.ldif"
   ansible.builtin.template:
     src: templates/replicator.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/replicator.ldif
@@ -100,8 +100,7 @@
   become: true
   become_user: root
 
-
-- name: Dar template no arquivo "replicator_config.ldif"
+- name: Gerar arquivo "replicator_config.ldif"
   ansible.builtin.template:
     src: templates/replicator_config.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/replicator_config.ldif
@@ -111,8 +110,7 @@
   become: true
   become_user: root
 
-
-- name: Dar template no arquivo "replicator_config2.ldif"
+- name: Gerar arquivo "replicator_config2.ldif"
   ansible.builtin.template:
     src: templates/replicator_config2.ldif.j2
     dest: /tmp/ufrgs-openldap/templates/replicator_config2.ldif
@@ -129,8 +127,8 @@
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "replicator.ldif"
-  command: ldapadd -x -D 'cn=admin,dc=dev,dc=ufrgs,dc=br' -w '{{ ldap_user_pass }}' -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator.ldif
+- name: Importar arquivo "replicator.ldif" - criar usuário replicator
+  command: ldapadd -x -D 'cn=admin,dc=ufrgs,dc=br' -w '{{ ldap_user_pass }}' -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator.ldif
   become: true
   become_user: root
 
@@ -146,47 +144,47 @@
 
   # Adicionar todos os schemas e arquivos padrões para o LDAP
 
-- name: Adicionar o arquivo "change_DbMaxSize.ldif"
+- name: Importar arquivo "change_DbMaxSize.ldif" - altera o tamanho máximo da base
   command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/change-DbMaxSize.ldif
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "change-LogLevel.ldif"
+- name: Importar arquivo "change-LogLevel.ldif" - define nivel de log
   command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/change-LogLevel.ldif
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "misc.ldif"
+- name: Importar arquivo "misc.ldif" - importar schema misc
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/misc.ldif"
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "schema-eduperson.ldif"
+- name: Importar arquivo "schema-eduperson.ldif" - importar schema eduperson
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-eduperson.ldif"
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "schema-ufrgs.ldif"
+- name: Importar arquivo "schema-ufrgs.ldif" - importar schema ufrgs
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-ufrgs.ldif"
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "schema-authldap.ldif"
+- name: Importar arquivo "schema-authldap.ldif" - importar schema authldap
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-authldap.ldif"
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "schema-samba.ldif"
+- name: Importar arquivo "schema-samba.ldif" - importar schema samba
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-samba.ldif"
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "schema-ufrgsGrupo.ldif"
+- name: Importar arquivo "schema-ufrgsGrupo.ldif" - importar schema ufrgsGrupo
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-ufrgsGrupo.ldif"
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "create-indexes.ldif"
+- name: Importar arquivo "create-indexes.ldif" - criar indices
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/create-indexes.ldif"
   become: true
   become_user: root

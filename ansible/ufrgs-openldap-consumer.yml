@@ -1,6 +1,7 @@
 - hosts: consumer
   vars:
     suffix: dc=ufrgs,dc=br
+    provider: 143.54.4.129
 
   roles:
     - configure-openldap

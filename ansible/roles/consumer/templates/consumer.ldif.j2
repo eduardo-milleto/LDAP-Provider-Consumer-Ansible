@@ -6,7 +6,7 @@ olcSyncRepl: rid=1
   type=RefreshAndPersist
   bindmethod=simple
   binddn="cn=replicator,{{ suffix }}"
-  credentials="123"
+  credentials="{{ replicator_pass }}"
   searchbase="{{ suffix }}"
   logbase="cn=accesslog"
   logfilter="(&(objectClass=auditWriteObject)(reqResult=0))"

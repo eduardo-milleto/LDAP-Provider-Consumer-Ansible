@@ -1,5 +1,5 @@
 [provider]
-143.54.4.129 ansible_user=eduardom
+143.54.4.158 ansible_user=rui 
 
 [consumer]
-143.54.4.174 ansible_user=eduardom
+143.54.4.159 ansible_user=rui 

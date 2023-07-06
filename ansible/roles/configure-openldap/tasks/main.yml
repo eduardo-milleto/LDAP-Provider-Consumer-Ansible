@@ -110,16 +110,6 @@
   become: true
   become_user: root
 
-- name: Gerar arquivo "replicator_config2.ldif"
-  ansible.builtin.template:
-    src: templates/replicator_config2.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/replicator_config2.ldif
-    owner: root
-    group: wheel
-    mode: '0644'
-  become: true
-  become_user: root
-
 # Adição dos arquivos dos templates do "configure-openldap"
 
 - name: Adicionar o arquivo "admin.ldif"
@@ -128,17 +118,12 @@
   become_user: root
 
 - name: Importar arquivo "replicator.ldif" - criar usuário replicator
-  command: ldapadd -x -D 'cn=admin,dc=ufrgs,dc=br' -w '{{ ldap_user_pass }}' -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator.ldif
+  command: ldapadd -x -D 'cn=admin,{{ suffix }}' -w '{{ ldap_user_pass }}' -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator.ldif
   become: true
   become_user: root
 
 - name: Adicionar o arquivo "replicator_config.ldif"
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator_config.ldif"
-  become: true
-  become_user: root
-
-- name: Adicionar o arquivo "replicator_config2.ldif"
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator_config2.ldif"
   become: true
   become_user: root
 

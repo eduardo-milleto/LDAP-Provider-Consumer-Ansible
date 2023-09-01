@@ -1,0 +1,4 @@
+dn: cn=config
+changetype: modify
+add: olcLogFile
+olcLogFile: /var/log/slapd.log

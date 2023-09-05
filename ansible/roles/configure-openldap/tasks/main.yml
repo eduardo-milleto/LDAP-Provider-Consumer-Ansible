@@ -78,6 +78,29 @@
   become: true
   become_user: root
 
+# Configuração do log próprio do ldap
+
+- name: Movendo o arquivo "10-slapd.conf"
+  command: mv /tmp/ufrgs-openldap/files_configuration/10-slapd.conf /etc/rsyslog.d/10-slapd.conf 
+  become: true
+  become_user: root
+
+- name: Reiniciando o rsyslog
+  command: systemctl restart rsyslog
+  become: true
+  become_user: root
+
+- name: Movendo o arquivo "slapd"
+  command: mv /tmp/ufrgs-openldap/files_configuration/slapd /etc/logrotate.d/slapd
+  become: true
+  become_user: root
+
+- name: Reiniciando o logrotate
+  command: systemctl restart logrotate
+  become: true
+  become_user: root
+
+
 # Templates nos arquivos do "configure-openldap"
 
 - name: Gerar arquivo "admin.ldif"
@@ -110,16 +133,6 @@
   become: true
   become_user: root
 
-- name: Gerar arquivo "replicator_config2.ldif"
-  ansible.builtin.template:
-    src: templates/replicator_config2.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/replicator_config2.ldif
-    owner: root
-    group: wheel
-    mode: '0644'
-  become: true
-  become_user: root
-
 # Adição dos arquivos dos templates do "configure-openldap"
 
 - name: Adicionar o arquivo "admin.ldif"
@@ -137,12 +150,12 @@
   become: true
   become_user: root
 
-- name: Adicionar o arquivo "replicator_config2.ldif"
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator_config2.ldif"
+  # Adicionar todos os schemas e arquivos padrões para o LDAP
+
+- name: Importar arquivo "add_LogFile.ldif" - cria um arquivo de log própiro para o ldap
+  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/add-LogFile.ldif
   become: true
   become_user: root
-
-  # Adicionar todos os schemas e arquivos padrões para o LDAP
 
 - name: Importar arquivo "change_DbMaxSize.ldif" - altera o tamanho máximo da base
   command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/change-DbMaxSize.ldif

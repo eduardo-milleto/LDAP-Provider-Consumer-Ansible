@@ -2,4 +2,4 @@
 143.54.4.129 ansible_user=eduardom
 
 [consumer]
-143.54.4.159 ansible_user=rui 
+143.54.4.174 ansible_user=eduardom

@@ -1,11 +1,12 @@
 /var/log/slapd.log
 {
-        rotate 7
         daily
-        missingok
-        notifempty
-        delaycompress
+        rotate 60
+        create 640 syslog adm
+        nodelaycompress
         compress
+        dateext
+        missingok
         postrotate
                 /usr/lib/rsyslog/rsyslog-rotate
         endscript

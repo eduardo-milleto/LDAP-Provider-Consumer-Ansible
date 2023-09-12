@@ -1,4 +1,4 @@
-/var/log/slapd.log
+/var/log/slapd/ldap.log
 {
         daily
         rotate 60

@@ -75,6 +75,7 @@
     mode: 600
   with_fileglob:
     - "files/*"
+    - "files/Indexes/*"
   become: true
   become_user: root
 
@@ -272,14 +273,102 @@
   become: true
   become_user: root
 
-- name: Verificar se a configuração "create-indexes.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsSubGrupo,ufrgsSRHMemberUid,ufrgsManualMemberUid,ufrgsBloqMemberUid,ufrgsSubGrupoMemberUid eq,pres)'
-  register: ldap_create_indexes_check
+# Verificação e implementação dos indíces necessários
+
+- name: Verificar se a configuração "indice_1.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=entryCSN,entryUUID eq)'
+  register: ldap_create_indexes_check_1
   become: true
   become_user: root
 
-- name: Importar arquivo "create-indexes.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/create-indexes.ldif"
-  when: ldap_create_indexes_check.stdout == ""
+
+- name: Importar arquivo "indice_1.ldif" - cria os indices
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_1.ldif"
+  when: ldap_create_indexes_check_1.stdout == ""
+  become: true
+  become_user: root
+
+- name: Verificar se a configuração "indicie_2.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ou,mail,displayName,ufrgsPrimeiroNome,ufrgsRestoNome,sambaSID eq,pres,sub)'
+  register: ldap_create_indexes_check_2
+  become: true
+  become_user: root
+
+
+- name: Importar arquivo "indice_2.ldif" - cria os indices
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_2.ldif"
+  when: ldap_create_indexes_check_2.stdout == ""
+  become: true
+  become_user: root
+
+- name: Verificar se a configuração "indicie_3.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=quota,loginShell,rfc822MailMember eq,pres)'
+  register: ldap_create_indexes_check_3
+  become: true
+  become_user: root
+
+- name: Importar arquivo "indice_3.ldif" - cria os indices
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_3.ldif"
+  when: ldap_create_indexes_check_3.stdout == ""
+  become: true
+  become_user: root
+
+- name: Verificar se a configuração "indicie_4.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=sambaPrimaryGroupSID,sambaGroupType,sambaDomainName,sambaSIDList,sambaAcctFlags,sambaPwdLastSet eq,pres)'
+  register: ldap_create_indexes_check_4
+  become: true
+  become_user: root
+
+- name: Importar arquivo "indice_4.ldif" - cria os indices
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_4.ldif"
+  when: ldap_create_indexes_check_4.stdout == ""
+  become: true
+  become_user: root
+
+- name: Verificar se a configuração "indicie_5.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsChasquemailDomainFQDN,ufrgsChasquemailDomainStatus,ufrgsChasquemailMailboxServer,ufrgsChasquemailEnabled,ufrgsChasquemailLockedAccount,ufrgsChasquemailDomainType eq,pres)'
+  register: ldap_create_indexes_check_5
+  become: true
+  become_user: root
+
+- name: Importar arquivo "indice_5.ldif" - cria os indices
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_5.ldif"
+  when: ldap_create_indexes_check_5.stdout == ""
+  become: true
+  become_user: root
+
+- name: Verificar se a configuração "indicie_6.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsVPNStatus eq,pres)'
+  register: ldap_create_indexes_check_6
+  become: true
+  become_user: root
+
+- name: Importar arquivo "indice_6.ldif" - cria os indices
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_6.ldif"
+  when: ldap_create_indexes_check_6.stdout == ""
+  become: true
+  become_user: root
+
+- name: Verificar se a configuração "indicie_7.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsSubGrupo,ufrgsSRHMemberUid,ufrgsManualMemberUid,ufrgsBloqMemberUid,ufrgsSubGrupoMemberUid eq,pres)'
+  register: ldap_create_indexes_check_7
+  become: true
+  become_user: root
+
+- name: Importar arquivo "indice_7.ldif" - cria os indices
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_7.ldif"
+  when: ldap_create_indexes_check_7.stdout == ""
+  become: true
+  become_user: root
+
+- name: Verificar se a configuração "indicie_8.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsChasquemailStatusHistory eq)'
+  register: ldap_create_indexes_check_8
+  become: true
+  become_user: root
+
+- name: Importar arquivo "indice_8.ldif" - cria os indices
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_8.ldif"
+  when: ldap_create_indexes_check_8.stdout == ""
   become: true
   become_user: root

@@ -202,7 +202,7 @@
   become_user: root
 
 - name: Verificar se o schema "misc" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -b 'cn=schema,cn=config' '(cn={4}misc)'
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -b 'cn=schema,cn=config' '(cn={*}misc)'
   register: ldap_misc_check
   become: true
   become_user: root
@@ -214,7 +214,7 @@
   become_user: root
 
 - name: Verificar se o schema "eduperson" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={5}eduperson)'
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={*}eduperson)'
   register: ldap_eduperson_check
   become: true
   become_user: root
@@ -226,7 +226,7 @@
   become_user: root
 
 - name: Verificar se o schema "ufrgs" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={6}ufrgs)'
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={*}ufrgs)'
   register: ldap_ufrgs_check
   become: true
   become_user: root
@@ -238,7 +238,7 @@
   become_user: root
 
 - name: Verificar se o schema "authldap" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={7}authldap)'
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={*}authldap)'
   register: ldap_authldap_check
   become: true
   become_user: root
@@ -250,7 +250,7 @@
   become_user: root
 
 - name: Verificar se o schema "samba" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={8}samba)'
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={*}samba)'
   register: ldap_samba_check
   become: true
   become_user: root
@@ -262,7 +262,7 @@
   become_user: root
 
 - name: Verificar se o schema "ufrgsGrupo" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={9}ufrgsGrupo)'
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={*}ufrgsGrupo)'
   register: ldap_ufrgsGrupo_check
   become: true
   become_user: root
@@ -370,5 +370,19 @@
 - name: Importar arquivo "indice_8.ldif" - cria os indices
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_8.ldif"
   when: ldap_create_indexes_check_8.stdout == ""
+  become: true
+  become_user: root
+
+# Verificação e implementação das configurações de acesso dos usuários
+
+- name: Verificar se a configuração "access_config_users.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(&(olcAccess={4}to dn.regex="^uid=\28administrator|nobody\29,ou=people,dc=ufrgs,dc=br$$" by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write by dn.base="uid=Replicator,dc=ufrgs,dc=br" write by dn.base="uid=Leitor,dc=ufrgs,dc=br" read by self read by \2a none stop))'
+  register: ldap_access_check
+  become: true
+  become_user: root
+
+- name: Importar arquivo "access_config_users.ldif" - cria os indices
+  shell: "ldapadd -c -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/access_config_users.ldif"
+  when: ldap_access_check.stdout == ""
   become: true
   become_user: root

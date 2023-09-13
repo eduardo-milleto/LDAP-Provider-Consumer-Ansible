@@ -24,14 +24,15 @@
   become: true
   become_user: root
 
-- name: Verificar se a configuração de "módulos" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=config' '(cn=module{1})' 
-  register: ldap_modules_check
+- name: Verificar se a configuração de "consumer.ldif" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcSyncrepl=*)' 
+  register: ldap_consumer_check
   become: true
   become_user: root
 
 - name: Importar o arquivo "consumer.ldif"
   command: ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/consumer.ldif
+  when: ldap_consumer_check.stdout == ""
   become: true
   become_user: root
 

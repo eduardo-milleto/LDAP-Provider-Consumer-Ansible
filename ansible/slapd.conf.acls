@@ -1,0 +1,388 @@
+access to *
+	by peername.ip=127.0.0.1 anonymous read
+	by * break
+
+access to dn.regex="^sambaDomainName=[^,]+,dc=ufrgs,dc=br$$"
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write
+	by * break
+
+access to dn.subtree="dc=ufrgs,dc=br" attrs=children
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write
+	by * break
+
+access to dn.subtree="dc=samba,dc=ufrgs,dc=br"
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" read
+	by * none stop
+
+access to dn.regex="^uid=(administrator|nobody),ou=people,dc=ufrgs,dc=br$$"
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by self read
+	by * none stop
+
+access to dn.subtree="ou=people,dc=ufrgs,dc=br" attrs=children
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" add
+	by * break
+
+access to dn.subtree="ou=people,dc=ufrgs,dc=br" attrs=cn,displayName,uid,objectClass,description,uidNumber,gidNumber,homeDirectory,loginShell
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" read
+	by * break
+
+access to dn.subtree="ou=people,dc=ufrgs,dc=br" attrs=@sambasamaccount
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write
+	by * break
+
+access to dn.subtree="ou=HospedagemSites,dc=ufrgs,dc=br"
+	by dn.base="uid=LeitorHospedagemSites,dc=ufrgs,dc=br" read
+	by dn.base="uid=GerenteHospedagemSites,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users search
+	by * auth
+
+access to dn.subtree="ou=VPNTerceiros,dc=ufrgs,dc=br"
+        by dn.base="uid=GerenteVPNTerceiros,dc=ufrgs,dc=br" write
+        by peername=127.0.0.1 read
+        by users search
+        by * auth
+
+access to dn.subtree="ou=Departamentos,dc=ufrgs,dc=br"
+	attrs=userPassword
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by * auth
+
+access to dn.subtree="ou=NuvemUFRGS,dc=ufrgs,dc=br"
+	attrs=userPassword
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by * auth
+
+access to dn.subtree="ou=VPNTerceiros,dc=ufrgs,dc=br"
+	attrs=userPassword
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by * auth
+
+access to attrs=userPassword,sambaLMPassword,sambaNTPassword,sambaPwdLastSet
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" write
+	by dn.base="uid=LeitorVoIP,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by * auth
+
+access to dn.subtree="ou=People,dc=ufrgs,dc=br"
+	attrs=ufrgsWebConfStatus
+	by dn.base="uid=proxyuser,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorWebConf,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by * none
+
+access to dn.subtree="ou=People,dc=ufrgs,dc=br"
+	attrs=ufrgsCisco-AVPair,ufrgsDigest-HA1,ufrgsVoIPStatus
+	by dn.base="uid=proxyuser,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorVoIP,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by * none
+
+access to dn.subtree="ou=People,dc=ufrgs,dc=br"
+	attrs=ufrgsTelefoneVoIP
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorVoIP,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users read
+	by * none
+
+access to dn.subtree="ou=People,dc=ufrgs,dc=br"
+	attrs=quota,ufrgsChasquemailLockedAccount,ufrgsChasquemailEnabled,ufrgsChasquemailStatusHistory,ufrgsVPNStatus,mailbox,homeDirectory
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" write
+	by dn.base="uid=Leitor5,dc=ufrgs,dc=br" read
+	by peername=127.0.0.1 read
+	by self read
+	by * none
+
+access to dn.subtree="ou=People,dc=ufrgs,dc=br"
+	attrs=ufrgsWebDiscoQuota,ufrgsWebAliasPagina,ufrgsWebAliasPaginaStatus,ufrgsWebDiscoStatus
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" write
+	by dn.base="uid=Leitor2,dc=ufrgs,dc=br" read
+	by peername=127.0.0.1 read
+	by self read
+	by * none
+
+access to dn.subtree="ou=People,dc=ufrgs,dc=br"
+	attrs=uid,cn,sn,displayName,gecos,mail,telephoneNumber,entry,ufrgsPrimeiroNome,ufrgsRestoNome
+	by dn.base="uid=leitor-aghuse,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Mailman,dc=ufrgs,dc=br" read
+	by dn.base="uid=MoodleReader,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Eleicoes,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor3,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorWebconf,dc=ufrgs,dc=br" read
+	by users read
+	by peername=127.0.0.1 read
+	by peername=143.54.234.22 read
+	by * none
+
+access to dn.regex="^uid=([^,]+),ou=People,dc=ufrgs,dc=br$$"
+	attrs=jpegPhoto,ufrgsMatricula,ufrgsNrVinculoServidor,ufrgsDataIngresso,ufrgsDataAfastamento,ufrgsCategoriaFuncional,ufrgsSituacaoFuncional,ufrgsOrgaoLotacao,ufrgsCurso,ufrgsProgramaPG,ufrgsNivelCurso,ufrgsSiglaFundacao,ufrgsTipoVinculo,ufrgsOrgaoExercicio,ufrgsRamal,ufrgsCodTipoVinculo,ufrgsCodCurso,ufrgsDataAposentadoria,ufrgsCodOrgaoExercicio,ufrgsCodOrgaoLotacao,ufrgsCodProgramaPG,ufrgsAnoSemIngressoGrad,ufrgsMotivoIngressoGrad,ufrgsAnoSemAfastamentoGrad,ufrgsMotivoAfastamentoGrad,ufrgsNrSeqColaborador,ufrgsCodOrgaoFundacao,ufrgsEmailAlternativo,ufrgsDataNascimento,ufrgsCPF
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor4,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor6,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=LeitorShib,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Portaria,dc=ufrgs,dc=br" read
+	by dn.base="uid=Portaria-Externo,dc=ufrgs,dc=br" read
+	by dn.exact,expand="uid=$1,ou=People,dc=ufrgs,dc=br" read
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+access to dn.regex="^uid=([^,]+),ou=People,dc=ufrgs,dc=br$$"
+	attrs=uid,uidNumber,gidNumber,homeDirectory,loginShell,ufrgsVPN,ufrgsVPNStatus
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorVoIP,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.exact,expand="uid=$1,ou=People,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor2,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor5,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorShib,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorWebconf,dc=ufrgs,dc=br" read
+	by dn.base="uid=MoodleReader,dc=ufrgs,dc=br" read
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+access to dn.regex="^uid=([^,]+),ou=People,dc=ufrgs,dc=br$$"
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.exact,expand="uid=$1,ou=People,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+access to dn.subtree="ou=People,dc=ufrgs,dc=br"
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+access to dn.subtree="ou=Aliases,dc=ufrgs,dc=br"
+	by dn.base="uid=Aliasreader,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by * none
+
+access to dn.subtree="ou=Departamentos,dc=ufrgs,dc=br"
+	attrs=cn,sn,displayName,gecos,mail,telephoneNumber,entry
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by users read
+	by peername=127.0.0.1 read
+	by * none
+
+access to dn.regex="^uid=([^,]+),ou=Departamentos,dc=ufrgs,dc=br$$"
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.exact,expand="uid=$1,ou=Departamentos,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Leitor5,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+access to dn.subtree="ou=Departamentos,dc=ufrgs,dc=br"
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor5,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+access to dn.subtree="ou=VPNTerceiros,dc=ufrgs,dc=br"
+	attrs=cn,sn,displayName,gecos,mail,telephoneNumber,entry
+	by dn.base="uid=leitor-vpn,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by users read
+	by peername=127.0.0.1 read
+	by * none
+
+access to dn.regex="^uid=([^,]+),ou=VPNTerceiros,dc=ufrgs,dc=br$$"
+	by dn.base="uid=leitor-vpn,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users search
+	by self read
+	by * none
+
+access to dn.subtree="ou=VPNTerceiros,dc=ufrgs,dc=br"
+	by dn.base="uid=leitor-vpn,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+
+
+access to dn.subtree="ou=NuvemUFRGS,dc=ufrgs,dc=br"
+	attrs=cn,sn,displayName,gecos,mail,telephoneNumber,entry
+	by dn.base="uid=leitor-nuvem,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by users read
+	by peername=127.0.0.1 read
+	by * none
+
+access to dn.regex="^uid=([^,]+),ou=NuvemUFRGS,dc=ufrgs,dc=br$$"
+	by dn.base="uid=leitor-nuvem,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users search
+	by self read
+	by * none
+
+access to dn.subtree="ou=NuvemUFRGS,dc=ufrgs,dc=br"
+	by dn.base="uid=leitor-nuvem,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+access to dn.regex="^cn=vpn-([^,]+),ou=Group,dc=ufrgs,dc=br$$"
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Leitor5,dc=ufrgs,dc=br" read
+	by peername=127.0.0.1 read
+	by * none
+
+access to dn.subtree="ou=Group,dc=ufrgs,dc=br"
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" read
+	by dn.base="uid=proxyuser,dc=ufrgs,dc=br" read
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" read
+	by dn.base="uid=Mailman,dc=ufrgs,dc=br" read
+	by dn.base="uid=MoodleReader,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorGrupos,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor5,dc=ufrgs,dc=br" read
+	by peername=127.0.0.1 read
+	by * none
+
+access to dn.subtree="ou=Virtual,dc=ufrgs,dc=br"
+	by dn.base="uid=Aliasreader,dc=ufrgs,dc=br" read
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=LeitorChasqueMailBox,dc=ufrgs,dc=br" read
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" read
+	by dn.base="uid=Gerente-Depto,dc=ufrgs,dc=br" write
+	by dn.base="uid=Gerente-Pessoa,dc=ufrgs,dc=br" write
+	by peername=127.0.0.1 read
+	by users search
+	by * none
+
+access to dn.base="dc=ufrgs,dc=br"
+	attrs=entry,contextCSN
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" read
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" read
+	by peername.ip=127.0.0.1 read
+	by peername.ip=143.54.2.250 read
+	by peername.ip=143.54.2.251 read
+	by peername.ip=143.54.2.252 read
+	by peername.ip=143.54.2.253 read
+	by peername.ip=143.54.99.19 read
+	by peername.ip=143.54.99.20 read
+	by peername.ip=143.54.99.21 read
+	by peername.ip=143.54.99.218 read
+	by users search
+	by * none
+
+access to *
+	by dn.base="uid=Leitor,dc=ufrgs,dc=br" read
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" write
+	by dn.base="uid=Sincronizador,dc=ufrgs,dc=br" write
+	by peername.ip=127.0.0.1 read
+	by peername.ip=143.54.2.250 search
+	by peername.ip=143.54.2.251 search
+	by peername.ip=143.54.2.252 search
+	by peername.ip=143.54.2.253 search
+	by peername.ip=143.54.99.19 search
+	by peername.ip=143.54.99.20 search
+	by peername.ip=143.54.99.21 search
+	by peername.ip=143.54.99.218 search
+	by users search
+	by * none
+

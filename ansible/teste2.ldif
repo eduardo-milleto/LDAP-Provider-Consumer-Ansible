@@ -1,0 +1,20 @@
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcAccess
+
+olcAccess: {0}to *
+	by peername.ip=127.0.0.1 anonymous read
+	by * break
+
+olcAccess: {1}to dn.regex="^sambaDomainName=[^,]+,dc=ufrgs,dc=br$$"
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write
+	by * break
+
+olcAccess: {2}to dn.subtree="dc=ufrgs,dc=br" attrs=children
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write
+	by * break
+
+olcAccess: {3}to dn.subtree="dc=samba,dc=ufrgs,dc=br"
+	by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write
+	by dn.base="uid=Replicator,dc=ufrgs,dc=br" read
+	by * none stop

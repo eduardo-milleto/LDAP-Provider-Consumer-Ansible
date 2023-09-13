@@ -4,10 +4,10 @@ objectClass: olcMdbConfig
 olcDatabase: {2}mdb
 olcDbDirectory: /var/lib/ldap/accesslog
 olcSuffix: cn=accesslog
-olcRootDN: cn=admin,dc=ufrgs,dc=br
+olcRootDN: cn=admin,{{ suffix }}
 olcDbIndex: default eq
 olcDbIndex: entryCSN,objectClass,reqEnd,reqResult,reqStart
-olcAccess: {0}to * by dn.exact="cn=replicator,dc=ufrgs,dc=br" read by * break
-olcLimits: dn.exact="cn=replicator,dc=ufrgs,dc=br"
+olcAccess: {0}to * by dn.exact="cn=replicator,{{ suffix }}" read by * break
+olcLimits: dn.exact="cn=replicator,{{ suffix }}"
   time.soft=unlimited time.hard=unlimited
   size.soft=unlimited size.hard=unlimited

@@ -1,6 +1,7 @@
 - hosts: consumer
   vars:
     suffix: dc=ufrgs,dc=br
+    provider: 143.54.4.158
 
   roles:
     - configure-openldap
@@ -10,7 +11,7 @@
     - name: "ldap_user_pass"
       prompt: "Digite a senha do usuário LDAP"
       private: yes
-    - name: "ldap_admin_cnconfig_password"
+    - name: "ldap_admin_pass"
       prompt: "Digite a senha do usuário admin"
       private: yes
     - name: "replicator_pass"

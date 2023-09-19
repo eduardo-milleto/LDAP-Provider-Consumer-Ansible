@@ -1,0 +1,4 @@
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcDbIndex
+olcDbIndex: sambaPrimaryGroupSID,sambaGroupType,sambaDomainName,sambaSIDList,sambaAcctFlags,sambaPwdLastSet eq,pres

@@ -15,7 +15,7 @@
     src: "{{ item }}"
     dest: /tmp/ufrgs-openldap/files_configuration/
     owner: root
-    mode: 777
+    mode: 644
   with_fileglob:
     - "files/*"
   become: true
@@ -23,8 +23,15 @@
 
 # Templates e adição dos arquivos da pasta "templates" do "provider"
 
-- name: Adicionando o arquivo "provider_active_modules.ldif"
+- name: Verificar se a configuração de "módulos" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=config' '(cn=module{1})' 
+  register: ldap_modules_check
+  become: true
+  become_user: root
+
+- name: Importar o arquivo "provider_active_modules.ldif" - habilita os módulos
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/provider-active-modules.ldif"
+  when: ldap_modules_check.stdout == ""
   become: true
   become_user: root
 
@@ -34,12 +41,13 @@
     dest: /tmp/ufrgs-openldap/templates/create_accesslog.ldif
     owner: root
     group: wheel
-    mode: '0644'
+    mode: 644
   become: true
   become_user: root
 
 - name: Importar "create_accesslog.ldif" - criar database accesslog
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/create_accesslog.ldif"
+  when: ldap_modules_check.stdout == ""
   become: true
   become_user: root
 
@@ -53,8 +61,15 @@
   become: true
   become_user: root
 
+- name: Verificar se o overlay "sync" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=config' '(olcOverlay={1}syncprov)'
+  register: ldap_sync_check
+  become: true
+  become_user: root
+
 - name: Importar "overlay_sync.ldif" - habilita overlay syncprov
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_sync.ldif"
+  when: ldap_sync_check.stdout == ""
   become: true
   become_user: root
 
@@ -68,8 +83,15 @@
   become: true
   become_user: root
 
+- name: Verificar se o overlay "overlay_accesslog" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=config' '(olcOverlay={1}accesslog)'
+  register: ldap_accesslog_check
+  become: true
+  become_user: root
+
 - name: Importar "overlay_accesslog.ldif" - habilita overlay accesslog 
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_accesslog.ldif"
+  when: ldap_accesslog_check.stdout == ""
   become: true
   become_user: root
 
@@ -83,8 +105,15 @@
   become: true
   become_user: root
 
+- name: Verificar se o overlay "sync_accesslog" já existe
+  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '123' -H ldapi:/// -b 'olcDatabase={2}mdb,cn=config' '(olcOverlay={0}syncprov)' 
+  register: ldap_sync_accesslog_check
+  become: true
+  become_user: root
+
 - name: Importar "overlay_sync_accesslog.ldif" - habilita overlay syncprov na database accesslog
   shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_sync_accesslog.ldif"
+  when: ldap_sync_accesslog_check.stdout == ""
   become: true
   become_user: root
 

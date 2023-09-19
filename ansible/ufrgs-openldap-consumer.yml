@@ -17,4 +17,7 @@
     - name: "replicator_pass"
       prompt: "Digite a senha do usuário replicator"
       private: yes
+    - name: "ip_provider"
+      prompt: "Digite o ip do servidor provider"
+      private: no
 

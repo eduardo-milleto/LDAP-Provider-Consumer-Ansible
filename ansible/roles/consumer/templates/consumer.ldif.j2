@@ -2,12 +2,12 @@ dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 add: olcSyncRepl
 olcSyncRepl: rid=1
-  provider=ldap://{{ provider }}
+  provider=ldap://"{{ ip_provider }}"
   type=RefreshAndPersist
   bindmethod=simple
-  binddn="cn=replicator,{{ suffix }}"
+  binddn="cn=replicator,dc=ufrgs,dc=br"
   credentials="{{ replicator_pass }}"
-  searchbase="{{ suffix }}"
+  searchbase="dc=ufrgs,dc=br"
   logbase="cn=accesslog"
   logfilter="(&(objectClass=auditWriteObject)(reqResult=0))"
   retry="60 20 300 10"

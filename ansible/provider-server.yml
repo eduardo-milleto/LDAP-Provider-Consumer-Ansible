@@ -1,6 +1,6 @@
 - hosts: provider
   vars:
-    suffix: dc=ufrgs,dc=br
+    suffix: dc=teste
 
   roles:
     - configure-openldap

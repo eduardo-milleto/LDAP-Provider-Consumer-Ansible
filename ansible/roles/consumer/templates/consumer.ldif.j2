@@ -5,9 +5,9 @@ olcSyncRepl: rid=1
   provider=ldap://"{{ ip_provider }}"
   type=RefreshAndPersist
   bindmethod=simple
-  binddn="cn=replicator,dc=ufrgs,dc=br"
+  binddn="cn=replicator,dc=teste"
   credentials="{{ replicator_pass }}"
-  searchbase="dc=ufrgs,dc=br"
+  searchbase="dc=teste"
   logbase="cn=accesslog"
   logfilter="(&(objectClass=auditWriteObject)(reqResult=0))"
   retry="60 20 300 10"

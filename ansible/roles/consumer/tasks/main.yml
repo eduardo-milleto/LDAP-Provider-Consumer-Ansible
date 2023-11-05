@@ -3,7 +3,7 @@
 - name: Dar template no arquivo "consumer.ldif"
   ansible.builtin.template:
     src: templates/consumer.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/consumer.ldif
+    dest: /tmp/templates/consumer.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -19,7 +19,7 @@
   become_user: root
 
 - name: Importar o arquivo "provider_active_modules.ldif" - habilita os módulos
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/provider-active-modules.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/files_configuration/provider-active-modules.ldif"
   when: ldap_modules_check.stdout == ""
   become: true
   become_user: root
@@ -31,16 +31,7 @@
   become_user: root
 
 - name: Importar o arquivo "consumer.ldif"
-  command: ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/consumer.ldif
+  command: ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/templates/consumer.ldif
   when: ldap_consumer_check.stdout == ""
-  become: true
-  become_user: root
-
-  # Excluir pasta-mãe dos arquivos de instalação LDAP
-
-- name: Remover pasta-mãe dos arquivos de instalação LDAP
-  ansible.builtin.file:
-    path: /tmp/ufrgs-openldap
-    state: absent
   become: true
   become_user: root

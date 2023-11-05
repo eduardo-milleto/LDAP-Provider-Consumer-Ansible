@@ -1,5 +1,5 @@
 [provider]
-143.54.4.129 ansible_user=eduardom
+ip ansible_user=
 
 [consumer]
-143.54.4.174 ansible_user=eduardom
+ip ansible_user=

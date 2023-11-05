@@ -50,7 +50,7 @@
 
 - name: Criar o diretório "ufrgs-openldap"
   file:
-    path: /tmp/ufrgs-openldap
+    path: /tmp
     state: directory
     owner: root
     group: root
@@ -59,7 +59,7 @@
 
 - name: Criar o diretório "templates"
   file:
-    path: /tmp/ufrgs-openldap/templates
+    path: /tmp/templates
     state: directory
     owner: root
     group: root
@@ -70,7 +70,7 @@
 
 - copy:
     src: "{{ item }}"
-    dest: /tmp/ufrgs-openldap/files_configuration/
+    dest: /tmp/files_configuration/
     owner: root
     mode: 600
   with_fileglob:
@@ -112,7 +112,7 @@
   become_user: root
 
 - name: Movendo o arquivo "10-slapd.conf"
-  command: mv /tmp/ufrgs-openldap/files_configuration/10-slapd.conf /etc/rsyslog.d/10-slapd.conf 
+  command: mv /tmp/files_configuration/10-slapd.conf /etc/rsyslog.d/10-slapd.conf 
   become: true
   become_user: root
 
@@ -122,7 +122,7 @@
   become_user: root
 
 - name: Movendo o arquivo "slapd"
-  command: mv /tmp/ufrgs-openldap/files_configuration/slapd /etc/logrotate.d/slapd
+  command: mv /tmp/files_configuration/slapd /etc/logrotate.d/slapd
   become: true
   become_user: root
 
@@ -137,7 +137,7 @@
 - name: Gerar arquivo "admin.ldif"
   ansible.builtin.template:
     src: templates/admin.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/admin.ldif
+    dest: /tmp/templates/admin.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -147,7 +147,7 @@
 - name: Gerar arquivo "replicator.ldif"
   ansible.builtin.template:
     src: templates/replicator.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/replicator.ldif
+    dest: /tmp/templates/replicator.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -157,7 +157,7 @@
 - name: Gerar arquivo "replicator_config.ldif"
   ansible.builtin.template:
     src: templates/replicator_config.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/replicator_config.ldif
+    dest: /tmp/templates/replicator_config.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -167,24 +167,24 @@
 # Adição dos arquivos dos templates do "configure-openldap"
 
 - name: Importar o arquivo "admin.ldif"
-  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/admin.ldif
+  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/templates/admin.ldif
   become: true
   become_user: root
 
 - name: Verificar se o usuário "replicator" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,dc=ufrgs,dc=br' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'dc=ufrgs,dc=br' 'cn=replicator'
+  command: ldapsearch -x -LLL -D 'cn=admin,dc=teste' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'dc=teste' 'cn=replicator'
   register: ldap_replicator_check
   become: true
   become_user: root
 
 - name: Importar o arquivo "replicator.ldif"
-  command: ldapadd -x -D 'cn=admin,dc=ufrgs,dc=br' -w '{{ ldap_user_pass }}' -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator.ldif
+  command: ldapadd -x -D 'cn=admin,dc=teste' -w '{{ ldap_user_pass }}' -H ldapi:/// -f /tmp/templates/replicator.ldif
   when: ldap_replicator_check.stdout == ""
   become: true
   become_user: root
 
 - name: Importar o arquivo "replicator_config.ldif"
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/replicator_config.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/templates/replicator_config.ldif"
   when: ldap_replicator_check.stdout == ""
   become: true
   become_user: root
@@ -192,12 +192,12 @@
   # Importar todos os schemas e arquivos padrões para o LDAP
 
 - name: Importar arquivo "change_DbMaxSize.ldif" - altera o tamanho máximo da base
-  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/change-DbMaxSize.ldif
+  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/files_configuration/change-DbMaxSize.ldif
   become: true
   become_user: root
 
 - name: Importar arquivo "change-LogLevel.ldif" - define nivel de log
-  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/change-LogLevel.ldif
+  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/files_configuration/change-LogLevel.ldif
   become: true
   become_user: root
 
@@ -220,20 +220,8 @@
   become_user: root
 
 - name: Importar arquivo "schema-eduperson.ldif" - importa schema eduperson
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-eduperson.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/files_configuration/schema-eduperson.ldif"
   when: ldap_eduperson_check.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se o schema "ufrgs" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={*}ufrgs)'
-  register: ldap_ufrgs_check
-  become: true
-  become_user: root
-
-- name: Importar arquivo "schema-ufrgs.ldif" - importa schema ufrgs
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-ufrgs.ldif"
-  when: ldap_ufrgs_check.stdout == ""
   become: true
   become_user: root
 
@@ -244,7 +232,7 @@
   become_user: root
 
 - name: Importar arquivo "schema-authldap.ldif" - importa schema authldap
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-authldap.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/files_configuration/schema-authldap.ldif"
   when: ldap_authldap_check.stdout == ""
   become: true
   become_user: root
@@ -256,133 +244,7 @@
   become_user: root
 
 - name: Importar arquivo "schema-samba.ldif" - importar schema samba
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-samba.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/files_configuration/schema-samba.ldif"
   when: ldap_samba_check.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se o schema "ufrgsGrupo" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'cn=schema,cn=config' '(cn={*}ufrgsGrupo)'
-  register: ldap_ufrgsGrupo_check
-  become: true
-  become_user: root
-
-- name: Importar arquivo "schema-ufrgsGrupo.ldif" - importa o schema ufrgsGrupo
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/schema-ufrgsGrupo.ldif"
-  when: ldap_ufrgsGrupo_check.stdout == ""
-  become: true
-  become_user: root
-
-# Verificação e implementação dos indíces necessários
-
-- name: Verificar se a configuração "indice_1.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=entryCSN,entryUUID eq)'
-  register: ldap_create_indexes_check_1
-  become: true
-  become_user: root
-
-
-- name: Importar arquivo "indice_1.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_1.ldif"
-  when: ldap_create_indexes_check_1.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se a configuração "indicie_2.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ou,mail,displayName,ufrgsPrimeiroNome,ufrgsRestoNome,sambaSID eq,pres,sub)'
-  register: ldap_create_indexes_check_2
-  become: true
-  become_user: root
-
-
-- name: Importar arquivo "indice_2.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_2.ldif"
-  when: ldap_create_indexes_check_2.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se a configuração "indicie_3.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=quota,loginShell,rfc822MailMember eq,pres)'
-  register: ldap_create_indexes_check_3
-  become: true
-  become_user: root
-
-- name: Importar arquivo "indice_3.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_3.ldif"
-  when: ldap_create_indexes_check_3.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se a configuração "indicie_4.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=sambaPrimaryGroupSID,sambaGroupType,sambaDomainName,sambaSIDList,sambaAcctFlags,sambaPwdLastSet eq,pres)'
-  register: ldap_create_indexes_check_4
-  become: true
-  become_user: root
-
-- name: Importar arquivo "indice_4.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_4.ldif"
-  when: ldap_create_indexes_check_4.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se a configuração "indicie_5.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsChasquemailDomainFQDN,ufrgsChasquemailDomainStatus,ufrgsChasquemailMailboxServer,ufrgsChasquemailEnabled,ufrgsChasquemailLockedAccount,ufrgsChasquemailDomainType eq,pres)'
-  register: ldap_create_indexes_check_5
-  become: true
-  become_user: root
-
-- name: Importar arquivo "indice_5.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_5.ldif"
-  when: ldap_create_indexes_check_5.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se a configuração "indicie_6.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsVPNStatus eq,pres)'
-  register: ldap_create_indexes_check_6
-  become: true
-  become_user: root
-
-- name: Importar arquivo "indice_6.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_6.ldif"
-  when: ldap_create_indexes_check_6.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se a configuração "indicie_7.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsSubGrupo,ufrgsSRHMemberUid,ufrgsManualMemberUid,ufrgsBloqMemberUid,ufrgsSubGrupoMemberUid eq,pres)'
-  register: ldap_create_indexes_check_7
-  become: true
-  become_user: root
-
-- name: Importar arquivo "indice_7.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_7.ldif"
-  when: ldap_create_indexes_check_7.stdout == ""
-  become: true
-  become_user: root
-
-- name: Verificar se a configuração "indicie_8.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(olcDbIndex=ufrgsChasquemailStatusHistory eq)'
-  register: ldap_create_indexes_check_8
-  become: true
-  become_user: root
-
-- name: Importar arquivo "indice_8.ldif" - cria os indices
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/indice_8.ldif"
-  when: ldap_create_indexes_check_8.stdout == ""
-  become: true
-  become_user: root
-
-# Verificação e implementação das configurações de acesso dos usuários
-
-- name: Verificar se a configuração "access_config_users.ldif" já existe
-  command: ldapsearch -x -LLL -D 'cn=admin,cn=config' -w '{{ ldap_user_pass }}' -H ldapi:/// -b 'olcDatabase={1}mdb,cn=config' '(&(olcAccess={4}to dn.regex="^uid=\28administrator|nobody\29,ou=people,dc=ufrgs,dc=br$$" by dn.base="uid=sambaAdmin,dc=ufrgs,dc=br" write by dn.base="uid=Replicator,dc=ufrgs,dc=br" write by dn.base="uid=Leitor,dc=ufrgs,dc=br" read by self read by \2a none stop))'
-  register: ldap_access_check
-  become: true
-  become_user: root
-
-- name: Importar arquivo "access_config_users.ldif" - cria os indices
-  shell: "ldapadd -c -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/access_config_users.ldif"
-  when: ldap_access_check.stdout == ""
   become: true
   become_user: root

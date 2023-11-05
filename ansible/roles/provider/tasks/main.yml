@@ -13,7 +13,7 @@
 
 - copy:
     src: "{{ item }}"
-    dest: /tmp/ufrgs-openldap/files_configuration/
+    dest: /tmp/files_configuration/
     owner: root
     mode: 644
   with_fileglob:
@@ -30,7 +30,7 @@
   become_user: root
 
 - name: Importar o arquivo "provider_active_modules.ldif" - habilita os módulos
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/files_configuration/provider-active-modules.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/files_configuration/provider-active-modules.ldif"
   when: ldap_modules_check.stdout == ""
   become: true
   become_user: root
@@ -38,7 +38,7 @@
 - name: Gerar arquivo "create_accesslog.ldif"
   ansible.builtin.template:
     src: templates/create_accesslog.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/create_accesslog.ldif
+    dest: /tmp/templates/create_accesslog.ldif
     owner: root
     group: wheel
     mode: 644
@@ -46,7 +46,7 @@
   become_user: root
 
 - name: Importar "create_accesslog.ldif" - criar database accesslog
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/create_accesslog.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/templates/create_accesslog.ldif"
   when: ldap_modules_check.stdout == ""
   become: true
   become_user: root
@@ -54,7 +54,7 @@
 - name: Gerar arquivo "overlay_sync.ldif"
   ansible.builtin.template:
     src: templates/overlay_sync.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/overlay_sync.ldif
+    dest: /tmp/templates/overlay_sync.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -68,7 +68,7 @@
   become_user: root
 
 - name: Importar "overlay_sync.ldif" - habilita overlay syncprov
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_sync.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/templates/overlay_sync.ldif"
   when: ldap_sync_check.stdout == ""
   become: true
   become_user: root
@@ -76,7 +76,7 @@
 - name: Gerar arquivo "overlay_accesslog.ldif"
   ansible.builtin.template:
     src: templates/overlay_accesslog.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/overlay_accesslog.ldif
+    dest: /tmp/templates/overlay_accesslog.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -90,7 +90,7 @@
   become_user: root
 
 - name: Importar "overlay_accesslog.ldif" - habilita overlay accesslog 
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_accesslog.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/templates/overlay_accesslog.ldif"
   when: ldap_accesslog_check.stdout == ""
   become: true
   become_user: root
@@ -98,7 +98,7 @@
 - name: Gerar arquivo "overlay_sync_accesslog.ldif"
   ansible.builtin.template:
     src: templates/overlay_sync_accesslog.ldif.j2
-    dest: /tmp/ufrgs-openldap/templates/overlay_sync_accesslog.ldif
+    dest: /tmp/templates/overlay_sync_accesslog.ldif
     owner: root
     group: wheel
     mode: '0644'
@@ -112,17 +112,7 @@
   become_user: root
 
 - name: Importar "overlay_sync_accesslog.ldif" - habilita overlay syncprov na database accesslog
-  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/ufrgs-openldap/templates/overlay_sync_accesslog.ldif"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f /tmp/templates/overlay_sync_accesslog.ldif"
   when: ldap_sync_accesslog_check.stdout == ""
   become: true
   become_user: root
-
-  # Excluir pasta-mãe dos arquivos de instalação LDAP
-
-- name: Remover pasta-mãe dos arquivos de instalação LDAP
-  ansible.builtin.file:
-    path: /tmp/ufrgs-openldap
-    state: absent
-  become: true
-  become_user: root
-
